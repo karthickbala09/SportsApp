@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "791995664655",
+    "project_id": "sih-sports-app-2025",
+    "storage_bucket": "sih-sports-app-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791995664655:android:42b50eb0b4cc00156f567a",
+        "android_client_info": {
+          "package_name": "com.example.sihapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPX0mGXlKCBRIRvcevmBe3TEFJKE96wTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
