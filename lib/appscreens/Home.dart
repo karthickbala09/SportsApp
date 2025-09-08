@@ -154,13 +154,18 @@ class _HomeState extends State<Home> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    atheletcard(title: "Athletics", imagepath: "assets/R.jpeg", context: context),
-                    atheletcard(title: "Badminton", imagepath: "assets/badm.jpg", context: context),
-                    atheletcard(title: "Hockey", imagepath: "assets/hockey.jpg", context: context),
-                    atheletcard(title: "Kabaddi", imagepath: "assets/kabbadi.jpg", context: context),
-                    atheletcard(title: "Volleyball", imagepath: "assets/volly.jpg", context: context),
-                    atheletcard(title: "Table Tennis", imagepath: "assets/tt.jpg", context: context),
-                    atheletcard(title: "High Jump", imagepath: "assets/hj.jpg", context: context),
+                    atheletcard(title: "Athletics", imagepath: "assets/R.jpeg", context: context, videopath: 'helo.mp4', pagename: "Athelete"),
+                  //  atheletcard(title: "Sprinting (100m)", imagepath: "assets/100m.jpg", context: context, videopath: "assets/100m.mp4", pagename: "Athletics"),
+               //     atheletcard(title: "Sprinting (200m)", imagepath: "assets/200m.jpg", context: context, videopath: "assets/200m.mp4", pagename: "Athletics"),
+              //      atheletcard(title: "Sprinting (400m)", imagepath: "assets/400m.jpg", context: context, videopath: "assets/400m.mp4", pagename: "Athletics"),
+              //      atheletcard(title: "Middle/Long Distance (800m)", imagepath: "assets/800m.jpg", context: context, videopath: "assets/800m.mp4", pagename: "Athletics"),
+              //      atheletcard(title: "Middle/Long Distance (1500m)", imagepath: "assets/1500m.jpg", context: context, videopath: "assets/1500m.mp4", pagename: "Athletics"),
+               //     atheletcard(title: "Hurdles", imagepath: "assets/hurdles.jpg", context: context, videopath: "assets/hurdles.mp4", pagename: "Athletics"),
+                //    atheletcard(title: "Long Jump", imagepath: "assets/longjump.jpg", context: context, videopath: "assets/longjump.mp4", pagename: "Athletics"),
+                 //   atheletcard(title: "High Jump", imagepath: "assets/highjump.jpg", context: context, videopath: "assets/highjump.mp4", pagename: "Athletics"),
+                 //   atheletcard(title: "Shot Put", imagepath: "assets/shotput.jpg", context: context, videopath: "assets/shotput.mp4", pagename: "Athletics"),
+                 //   atheletcard(title: "Javelin Throw", imagepath: "assets/javelin.jpg", context: context, videopath: "assets/javelin.mp4", pagename: "Athletics"),
+
                   ],
                 ),
               ),
@@ -172,10 +177,10 @@ class _HomeState extends State<Home> {
   }
 }
 
-Widget atheletcard({required String title, required imagepath, required BuildContext context}) {
+Widget atheletcard({required String title, required imagepath, required BuildContext context,required String videopath,required pagename}) {
   return GestureDetector(
     onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>AthleteScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>AthleteScreen(sportsname:pagename ,sportsvideourl:videopath ,)));
     },
     child: Padding(
       padding: EdgeInsets.all(10.w),

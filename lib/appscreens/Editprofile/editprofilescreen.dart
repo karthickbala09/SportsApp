@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sihapp/Database_services/students_database.dart';
 
 import 'modelclass.dart';
 
@@ -119,8 +122,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       certificates: List<String>.from(_certificates),
     );
 
+
+
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('profile_json', jsonEncode(profile.toJson()));
+    
+    // stroing in firestore .
+    
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    print(uid);
+     await DatabaseMethods().Storeprofile(profile.toJson(),uid);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Profile saved successfully')),
@@ -320,6 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF39D2C0),
                     padding: EdgeInsets.symmetric(vertical: 14.h),

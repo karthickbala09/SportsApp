@@ -3,7 +3,9 @@ import 'package:video_player/video_player.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AthleteScreen extends StatefulWidget {
-  const AthleteScreen({super.key});
+  final  String sportsname ;
+  final String  sportsvideourl;
+  const AthleteScreen({super.key, required this.sportsname, required this.sportsvideourl});
 
   @override
   State<AthleteScreen> createState() => _AthleteScreenState();
@@ -13,12 +15,12 @@ class _AthleteScreenState extends State<AthleteScreen> {
   late VideoPlayerController _controller;
   bool _isPlaying = false;
 
+
   @override
   void initState() {
     super.initState();
     // Use asset video instead of network
-    _controller = VideoPlayerController.asset(
-      'assets/videos/athlete_video.mp4', // <-- Your asset video path
+    _controller = VideoPlayerController.asset(widget.sportsvideourl, // <-- Your asset video path
     )
       ..initialize().then((_) {
         setState(() {}); // Refresh to show video
@@ -108,7 +110,7 @@ class _AthleteScreenState extends State<AthleteScreen> {
         child: Column(
           children: [
             SizedBox(height: 30.h),
-            Topbar("ATHLETE", "Sprint . Jump . Endurance", Icons.directions_run),
+            Topbar(widget.sportsname, "Sprint . Jump . Endurance", Icons.directions_run),
 
             // About Section
             Container(

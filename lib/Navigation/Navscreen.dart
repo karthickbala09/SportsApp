@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sihapp/appscreens/Home.dart';
 
+import '../charts/bmicharts.dart';
+
 class BottomNavPage extends StatefulWidget {
   const BottomNavPage({super.key});
 
@@ -15,7 +17,7 @@ class _BottomNavPageState extends State<BottomNavPage> {
   // List of pages (all full Scaffold)
   final List<Widget> _pages = [
     Home(),
-    Scaffold(),
+    AthletePerformanceScreen(),
     Scaffold(),
     Scaffold(),
   ];
@@ -36,7 +38,7 @@ class _BottomNavPageState extends State<BottomNavPage> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.upcoming), label: "Performance"),
           BottomNavigationBarItem(
               icon: Icon(Icons.notifications), label: "Notifications"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
