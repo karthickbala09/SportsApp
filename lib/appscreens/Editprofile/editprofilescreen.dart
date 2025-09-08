@@ -21,6 +21,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final nameCtrl = TextEditingController();
   final headlineCtrl = TextEditingController();
   final ageCtrl = TextEditingController();
+  final heightCtrl = TextEditingController();
+  final weightCtrl = TextEditingController();
   final genderCtrl = TextEditingController();
   final educationCtrl = TextEditingController();
   final cityCtrl = TextEditingController();
@@ -45,42 +47,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _loadSavedProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString('profile_json');
-    if (s != null) {
-      final json = jsonDecode(s) as Map<String, dynamic>;
-      final p = ProfileModel.fromJson(json);
-      setState(() {
-        nameCtrl.text = p.name;
-        headlineCtrl.text = p.headline;
-        ageCtrl.text = p.age;
-        genderCtrl.text = p.gender;
-        educationCtrl.text = p.education;
-        cityCtrl.text = p.city;
-        districtCtrl.text = p.district;
-        stateCtrl.text = p.state;
-        countryCtrl.text = p.country;
-        contactCtrl.text = p.contact;
-        sportsCtrl.text = p.interestedSports;
-        aboutCtrl.text = p.about;
-        _profileImagePath = p.profileImagePath;
-        _bannerImagePath = p.bannerImagePath;
-        _certificates.clear();
-        _certificates.addAll(p.certificates);
-      });
-    }
+    final profile = s != null
+        ? ProfileModel.fromJson(jsonDecode(s))
+        : ProfileModel.empty();
+    setState(() {
+      nameCtrl.text = profile.name;
+      headlineCtrl.text = profile.headline;
+      ageCtrl.text = profile.age ?? '';
+      heightCtrl.text = profile.height ?? '';
+      weightCtrl.text = profile.weight ?? '';
+      genderCtrl.text = profile.gender ?? '';
+      educationCtrl.text = profile.education ?? '';
+      cityCtrl.text = profile.city ?? '';
+      districtCtrl.text = profile.district ?? '';
+      stateCtrl.text = profile.state ?? '';
+      countryCtrl.text = profile.country ?? '';
+      contactCtrl.text = profile.contact ?? '';
+      sportsCtrl.text = profile.interestedSports ?? '';
+      aboutCtrl.text = profile.about;
+      _profileImagePath = profile.profileImagePath;
+      _bannerImagePath = profile.bannerImagePath;
+      _certificates.clear();
+      _certificates.addAll(profile.certificates);
+    });
   }
 
   Future<void> _pickProfilePhoto() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
-    if (picked != null) {
-      setState(() => _profileImagePath = picked.path);
-    }
+    if (picked != null) setState(() => _profileImagePath = picked.path);
   }
 
   Future<void> _pickBannerPhoto() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
-    if (picked != null) {
-      setState(() => _bannerImagePath = picked.path);
-    }
+    if (picked != null) setState(() => _bannerImagePath = picked.path);
   }
 
   Future<void> _pickCertificates() async {
@@ -104,6 +103,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       name: nameCtrl.text.trim(),
       headline: headlineCtrl.text.trim(),
       age: ageCtrl.text.trim(),
+      height: heightCtrl.text.trim(),
+      weight: weightCtrl.text.trim(),
       gender: genderCtrl.text.trim(),
       education: educationCtrl.text.trim(),
       city: cityCtrl.text.trim(),
@@ -122,10 +123,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     await prefs.setString('profile_json', jsonEncode(profile.toJson()));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved locally')),
+      const SnackBar(content: Text('Profile saved successfully')),
     );
 
-    Navigator.of(context).pop(true);
+    Navigator.of(context).pop(true); // Return true to previous screen
   }
 
   Widget _smallField(TextEditingController ctrl, String label,
@@ -147,6 +148,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     nameCtrl.dispose();
     headlineCtrl.dispose();
     ageCtrl.dispose();
+    heightCtrl.dispose();
+    weightCtrl.dispose();
     genderCtrl.dispose();
     educationCtrl.dispose();
     cityCtrl.dispose();
@@ -161,18 +164,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFF1E8F5E); // sporty green
+    final accent = const Color(0xFF1E8F5E);
     return Scaffold(
-      backgroundColor: Colors.white, // white scaffold
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color(0xFF39D2C0),
+        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF39D2C0),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -193,8 +195,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(12.r),
                         image: _bannerImagePath != null
                             ? DecorationImage(
-                            image: FileImage(File(_bannerImagePath!)),
-                            fit: BoxFit.cover)
+                          image: FileImage(File(_bannerImagePath!)),
+                          fit: BoxFit.cover,
+                        )
                             : null,
                         gradient: _bannerImagePath == null
                             ? LinearGradient(colors: [accent, Colors.blueAccent])
@@ -227,7 +230,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
               SizedBox(height: 48.h),
-
               _smallField(nameCtrl, 'Full name'),
               SizedBox(height: 10.h),
               _smallField(headlineCtrl, 'Headline (e.g., Sprinter | 100m PB)'),
@@ -235,11 +237,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Row(
                 children: [
                   Expanded(
-                      child: _smallField(ageCtrl, 'Age', keyboard: TextInputType.number)),
+                    child: _smallField(ageCtrl, 'Age', keyboard: TextInputType.number),
+                  ),
                   SizedBox(width: 10.w),
-                  Expanded(child: _smallField(genderCtrl, 'Gender')),
+                  Expanded(
+                    child: _smallField(heightCtrl, 'Height (cm)', keyboard: TextInputType.number),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _smallField(weightCtrl, 'Weight (kg)', keyboard: TextInputType.number),
+                  ),
                 ],
               ),
+              SizedBox(height: 10.h),
+              _smallField(genderCtrl, 'Gender'),
               SizedBox(height: 10.h),
               _smallField(educationCtrl, 'Education'),
               SizedBox(height: 10.h),
@@ -276,10 +287,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF39D2C0)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF39D2C0)),
                   onPressed: _pickCertificates,
-                  icon: const Icon(Icons.upload_file,color: Colors.white,),
-                  label: const Text('Upload Certificates',style: TextStyle(color: Colors.black),),
+                  icon: const Icon(Icons.upload_file, color: Colors.white),
+                  label: const Text('Upload Certificates', style: TextStyle(color: Colors.black)),
                 ),
               ),
               if (_certificates.isNotEmpty)
@@ -310,11 +321,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF39D2C0),
+                    backgroundColor: const Color(0xFF39D2C0),
                     padding: EdgeInsets.symmetric(vertical: 14.h),
                   ),
                   onPressed: _saveProfile,
-                  child: Text('Save Profile', style: TextStyle(fontSize: 16.sp,color: Colors.black)),
+                  child: Text('Save Profile', style: TextStyle(fontSize: 16.sp, color: Colors.black)),
                 ),
               ),
               SizedBox(height: 30.h),

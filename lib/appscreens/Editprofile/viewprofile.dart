@@ -14,7 +14,8 @@ class ViewProfileScreen extends StatefulWidget {
 }
 
 class _ViewProfileScreenState extends State<ViewProfileScreen> {
-  ProfileModel? profile;
+  ProfileModel profile = ProfileModel.empty(); // directly initialize
+
   final Color primaryColor = const Color(0xFF1E8F5E);
   final Color secondaryColor = const Color(0xFF39D2C0);
 
@@ -27,9 +28,16 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString('profile_json');
-    if (s != null) {
-      setState(() => profile = ProfileModel.fromJson(jsonDecode(s)));
+    if (s != null && s.isNotEmpty) {
+      try {
+        final data = jsonDecode(s);
+        setState(() => profile = ProfileModel.fromJson(data));
+      } catch (e) {
+        // Keep empty profile if JSON is invalid
+        profile = ProfileModel.empty();
+      }
     }
+    // else profile stays empty
   }
 
   Widget _infoRow(IconData icon, String label, String? value) {
@@ -45,7 +53,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
               text: TextSpan(
                 text: '$label\n',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14.sp),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 14.sp),
                 children: [
                   TextSpan(
                       text: value ?? '',
@@ -75,32 +85,31 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final bannerHeight = 160.h;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: profile == null
-            ? Center(child: CircularProgressIndicator())
-            : Column(
+        body: Column(
           children: [
-            // Stylish Top Bar
+            // Top Bar
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               height: 60.h,
               decoration: BoxDecoration(
-                color: Color(0xFF39D2C0),
+                color: secondaryColor,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.3),
                     blurRadius: 6,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  IconButton(onPressed: (){
-                    Navigator.pop(context);
-                  } ,icon:Icon(Icons.arrow_back,color: Colors.white,)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white)),
                   SizedBox(width: 12.w),
                   Text(
                     "Profile",
@@ -125,45 +134,41 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                           height: bannerHeight,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(0),
-                              topRight: Radius.circular(0),
-                            ),
-                            image: profile!.bannerImagePath != null &&
-                                profile!.bannerImagePath!.isNotEmpty
+                            image: profile.bannerImagePath != null &&
+                                profile.bannerImagePath!.isNotEmpty
                                 ? DecorationImage(
-                              image: FileImage(File(profile!.bannerImagePath!)),
+                              image: FileImage(File(profile.bannerImagePath!)),
                               fit: BoxFit.cover,
                             )
                                 : null,
-                            gradient: profile!.bannerImagePath == null ||
-                                profile!.bannerImagePath!.isEmpty
+                            gradient: profile.bannerImagePath == null ||
+                                profile.bannerImagePath!.isEmpty
                                 ? LinearGradient(
                               colors: [primaryColor, secondaryColor],
                             )
                                 : null,
                           ),
                         ),
-                        // Profile Image
                         Positioned(
                           left: 16.w,
                           bottom: -50.h,
                           child: CircleAvatar(
                             radius: 50.r,
                             backgroundColor: Colors.grey[200],
-                            backgroundImage: profile!.profileImagePath != null &&
-                                profile!.profileImagePath!.isNotEmpty
-                                ? FileImage(File(profile!.profileImagePath!)) as ImageProvider
+                            backgroundImage: profile.profileImagePath != null &&
+                                profile.profileImagePath!.isNotEmpty
+                                ? FileImage(File(profile.profileImagePath!))
                                 : null,
-                            child: profile!.profileImagePath == null ||
-                                profile!.profileImagePath!.isEmpty
-                                ? Icon(Icons.person, size: 50.sp, color: Colors.grey)
+                            child: profile.profileImagePath == null ||
+                                profile.profileImagePath!.isEmpty
+                                ? Icon(Icons.person,
+                                size: 50.sp, color: Colors.grey)
                                 : null,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 60.h), // space for overlapping profile
+                    SizedBox(height: 60.h),
 
                     // Name, About, Headline, Tags
                     Padding(
@@ -171,30 +176,35 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(profile!.name,
-                              style: TextStyle(
-                                  fontSize: 22.sp, fontWeight: FontWeight.bold)),
+                          Text(
+                            profile.name.isNotEmpty ? profile.name : 'User Name',
+                            style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+                          ),
                           SizedBox(height: 4.h),
-                          Text('About',
-                              style: TextStyle(
-                                  fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                          Text(
+                            'About',
+                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                          ),
                           SizedBox(height: 4.h),
-                          Text(profile!.about.isNotEmpty
-                              ? profile!.about
-                              : 'No bio provided.', style: TextStyle(fontSize: 14.sp)),
+                          Text(
+                            profile.about.isNotEmpty ? profile.about : 'No bio provided.',
+                            style: TextStyle(fontSize: 14.sp),
+                          ),
                           SizedBox(height: 4.h),
-                          Text(profile!.headline,
-                              style: TextStyle(fontSize: 14.sp, color: Colors.black54)),
+                          Text(
+                            profile.headline.isNotEmpty ? profile.headline : 'No headline',
+                            style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+                          ),
                           SizedBox(height: 12.h),
                           Wrap(
                             spacing: 8.w,
                             runSpacing: 6.h,
                             children: [
-                              _buildTag(profile!.interestedSports.isNotEmpty
-                                  ? profile!.interestedSports
+                              _buildTag(profile.interestedSports?.isNotEmpty == true
+                                  ? profile.interestedSports!
                                   : 'Sports'),
-                              _buildTag(profile!.education.isNotEmpty
-                                  ? profile!.education
+                              _buildTag(profile.education?.isNotEmpty == true
+                                  ? profile.education!
                                   : 'Education'),
                             ],
                           ),
@@ -202,17 +212,16 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                       ),
                     ),
 
-                    SizedBox(height: 16.h),
+                    // ... continue with Details Card, Certificates, Edit button as before
 
-                    // Details Section
+                    // Details Card
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Card(
                         color: Colors.white,
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Color(0xFF39D2C0) ),
-
+                            side: BorderSide(color: secondaryColor),
                             borderRadius: BorderRadius.circular(12.r)),
                         child: Padding(
                           padding: EdgeInsets.all(16.w),
@@ -236,7 +245,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 
                     SizedBox(height: 12.h),
 
-                    // Certificates Section
+                    // Certificates
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Column(
@@ -246,7 +255,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                               style: TextStyle(
                                   fontSize: 16.sp, fontWeight: FontWeight.bold)),
                           SizedBox(height: 8.h),
-                          Container(
+                          SizedBox(
                             height: 100.h,
                             child: profile!.certificates.isEmpty
                                 ? Center(child: Text('No certificates uploaded.'))
@@ -256,7 +265,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                               itemBuilder: (context, index) {
                                 final p = profile!.certificates[index];
                                 final name = p.split('/').last;
-                                final isImage = name.toLowerCase().endsWith('.png') ||
+                                final isImage = name
+                                    .toLowerCase()
+                                    .endsWith('.png') ||
                                     name.toLowerCase().endsWith('.jpg') ||
                                     name.toLowerCase().endsWith('.jpeg');
                                 return Padding(
@@ -276,11 +287,12 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                                               : null,
                                         ),
                                         child: !isImage
-                                            ? Icon(Icons.picture_as_pdf, size: 32.sp)
+                                            ? Icon(Icons.picture_as_pdf,
+                                            size: 32.sp)
                                             : null,
                                       ),
                                       SizedBox(height: 4.h),
-                                      Container(
+                                      SizedBox(
                                         width: 80.w,
                                         child: Text(
                                           name,
@@ -308,11 +320,14 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => EditProfileScreen()));
+                                    builder: (context) => const EditProfileScreen()));
+                            if(result == true){
+                              await _loadProfile(); // reload after edit
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: secondaryColor,

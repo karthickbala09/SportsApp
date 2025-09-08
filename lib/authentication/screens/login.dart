@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sihapp/authentication/screens/register.dart';
 
+import '../../Navigation/Navscreen.dart';
 import '../../appscreens/Home.dart';
 import '../auth_services.dart';
 import 'forgotpass.dart';
@@ -153,7 +154,7 @@ class _LoginStep1ScreenState extends State<LoginStep1Screen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Login successful!"), backgroundColor: Colors.green),
                             );
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => BottomNavPage()));
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(result ?? "Login failed"), backgroundColor: Colors.red),

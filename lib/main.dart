@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sihapp/Navigation/Navscreen.dart';
 import 'package:sihapp/authentication/screens/Initial.dart';
+import 'appscreens/Editprofile/viewprofile.dart';
+import 'appscreens/Home.dart';
 import 'firebase_options.dart';
 
 void main() async {
