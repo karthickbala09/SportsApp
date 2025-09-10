@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:video_player/video_player.dart';
+
+import 'Assesmentscreen.dart';
+
 
 class AthleteScreen extends StatefulWidget {
-  final  String sportsname ;
-  final String  sportsvideourl;
-  const AthleteScreen({super.key, required this.sportsname, required this.sportsvideourl});
+  final String sportsname;
+  final String sportsvideourl;
+  final String sportssubtitle;
+  final String sportsabout;
+
+  const AthleteScreen({
+    super.key,
+    required this.sportsname,
+    required this.sportsvideourl,
+    required this.sportssubtitle,
+    required this.sportsabout,
+  });
 
   @override
   State<AthleteScreen> createState() => _AthleteScreenState();
@@ -13,20 +25,14 @@ class AthleteScreen extends StatefulWidget {
 
 class _AthleteScreenState extends State<AthleteScreen> {
   late VideoPlayerController _controller;
-  bool _isPlaying = false;
-
 
   @override
   void initState() {
     super.initState();
-    // Use asset video instead of network
-    _controller = VideoPlayerController.asset(widget.sportsvideourl, // <-- Your asset video path
-    )
+    _controller = VideoPlayerController.asset("assets/run.mp4")
       ..initialize().then((_) {
-        setState(() {}); // Refresh to show video
+        setState(() {});
       });
-
-    // Optional: loop video
     _controller.setLooping(true);
   }
 
@@ -51,11 +57,10 @@ class _AthleteScreenState extends State<AthleteScreen> {
           children: [
             Icon(icon, color: Colors.white, size: 24.sp),
             SizedBox(width: 10.w),
-            Text(text,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold)),
+            Text(
+              text,
+              style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -85,15 +90,9 @@ class _AthleteScreenState extends State<AthleteScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$title',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.bold)),
+                Text(title, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
                 SizedBox(height: 5.h),
-                Text('$bottom',
-                    style:
-                    TextStyle(color: Colors.white70, fontSize: 14.sp)),
+                Text(bottom, style: TextStyle(color: Colors.white70, fontSize: 14.sp)),
               ],
             ),
           ),
@@ -110,7 +109,7 @@ class _AthleteScreenState extends State<AthleteScreen> {
         child: Column(
           children: [
             SizedBox(height: 30.h),
-            Topbar(widget.sportsname, "Sprint . Jump . Endurance", Icons.directions_run),
+            Topbar(widget.sportsname, widget.sportssubtitle, Icons.directions_run),
 
             // About Section
             Container(
@@ -120,20 +119,22 @@ class _AthleteScreenState extends State<AthleteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('About',
-                      style: TextStyle(
-                          fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                  Text('About', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 10.h),
-                  Text(
-                    'Athletics involves speed, stamina, and technique. Improve your jumps and runs with guided tests.',
-                    style: TextStyle(fontSize: 14.sp),
-                  ),
+                  Text(widget.sportsabout, style: TextStyle(fontSize: 14.sp)),
                 ],
               ),
             ),
 
             // Buttons
-            buildButton(Icons.play_arrow, 'Start Assessment', Colors.greenAccent, () {}),
+            buildButton(Icons.play_arrow, 'Start Assessment', Colors.greenAccent, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssessmentScreen(sportName: widget.sportsname),
+                ),
+              );
+            }),
             buildButton(Icons.bar_chart, 'View Progress', Colors.blue, () {}),
             buildButton(Icons.book, 'Guidelines', Colors.grey, () {}),
 
@@ -155,34 +156,27 @@ class _AthleteScreenState extends State<AthleteScreen> {
                     )
                         : CircularProgressIndicator(strokeWidth: 3.w),
                   ),
-                  // Play/Pause button
                   Positioned.fill(
                     child: Center(
                       child: IconButton(
                         icon: Icon(
-                          _controller.value.isPlaying
-                              ? Icons.pause_circle_filled
-                              : Icons.play_circle_fill,
+                          _controller.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
                           size: 60.sp,
                           color: Colors.white,
                         ),
                         onPressed: () {
                           setState(() {
-                            _controller.value.isPlaying
-                                ? _controller.pause()
-                                : _controller.play();
+                            _controller.value.isPlaying ? _controller.pause() : _controller.play();
                           });
                         },
                       ),
                     ),
                   ),
-                  // Optional: current time display
                   Positioned(
                     bottom: 10.h,
                     right: 10.w,
                     child: Container(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       color: Colors.black54,
                       child: Text(
                         '${_controller.value.position.inMinutes}:${(_controller.value.position.inSeconds % 60).toString().padLeft(2, '0')}',
@@ -202,9 +196,7 @@ class _AthleteScreenState extends State<AthleteScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Cheat Detection',
-                      style: TextStyle(
-                          fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                  Text('Cheat Detection', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 10.h),
                   buildCheck('Hold your phone steady'),
                   SizedBox(height: 5.h),

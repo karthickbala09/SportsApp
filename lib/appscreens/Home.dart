@@ -3,10 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sihapp/authentication/auth_services.dart';
+import 'package:sihapp/authentication/screens/Initial.dart';
+import '../Home_modeldata.dart';
+import '../Homemodel_class.dart';
+
 import 'Editprofile/modelclass.dart';
 import 'Editprofile/viewprofile.dart';
+import 'Settingscreen.dart';
 import 'Sportsassesments.dart';
-
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -80,14 +85,16 @@ class _HomeState extends State<Home> {
                       children: [
                         Text(
                           userName,
-                          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18.sp, fontWeight: FontWeight.bold),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4.h),
                         Text(
                           userHeadline,
-                          style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+                          style: TextStyle(
+                              fontSize: 14.sp, color: Colors.black54),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -99,7 +106,9 @@ class _HomeState extends State<Home> {
             ),
             Divider(),
             ListTile(
-              onTap: () {}, // Settings placeholder
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>SettingsScreen()));
+              }, // Settings placeholder
               title: Text("Settings", style: TextStyle(fontSize: 20)),
               leading: Icon(Icons.settings, size: 30),
             ),
@@ -108,6 +117,41 @@ class _HomeState extends State<Home> {
               title: Text("Profile", style: TextStyle(fontSize: 20)),
               leading: Icon(Icons.person, size: 30),
             ),
+            SizedBox(height: 300.h,),
+            Padding(
+              padding: EdgeInsets.only(left: 30.w,right: 30.w),
+              child: SizedBox(
+                height: 60.h,
+                child: GestureDetector(
+                  onTap: () async{
+                    AuthService().signOut();
+                    // Clear shared preferences if needed
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+
+                    // Navigate to login screen and remove all previous routes
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => LoginScreens()),
+                    (route) => false);
+
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color:  Color(0xFF39D2C0),
+                      borderRadius: BorderRadius.circular(15.r),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("LogOut",style: TextStyle(color: Colors.black,fontSize: 26.sp,fontWeight: FontWeight.bold),),
+                        Icon(Icons.logout,size: 26.sp,)
+                      ],
+                    ),
+
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
@@ -144,30 +188,20 @@ class _HomeState extends State<Home> {
                     ),
                     IconButton(
                       onPressed: () {},
-                      icon: Icon(Icons.notification_add_sharp, color: Colors.black),
+                      icon: Icon(Icons.notification_add_sharp,
+                          color: Colors.black),
                     ),
                   ],
                 ),
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    atheletcard(title: "Athletics", imagepath: "assets/R.jpeg", context: context, videopath: 'helo.mp4', pagename: "Athelete"),
-                  //  atheletcard(title: "Sprinting (100m)", imagepath: "assets/100m.jpg", context: context, videopath: "assets/100m.mp4", pagename: "Athletics"),
-               //     atheletcard(title: "Sprinting (200m)", imagepath: "assets/200m.jpg", context: context, videopath: "assets/200m.mp4", pagename: "Athletics"),
-              //      atheletcard(title: "Sprinting (400m)", imagepath: "assets/400m.jpg", context: context, videopath: "assets/400m.mp4", pagename: "Athletics"),
-              //      atheletcard(title: "Middle/Long Distance (800m)", imagepath: "assets/800m.jpg", context: context, videopath: "assets/800m.mp4", pagename: "Athletics"),
-              //      atheletcard(title: "Middle/Long Distance (1500m)", imagepath: "assets/1500m.jpg", context: context, videopath: "assets/1500m.mp4", pagename: "Athletics"),
-               //     atheletcard(title: "Hurdles", imagepath: "assets/hurdles.jpg", context: context, videopath: "assets/hurdles.mp4", pagename: "Athletics"),
-                //    atheletcard(title: "Long Jump", imagepath: "assets/longjump.jpg", context: context, videopath: "assets/longjump.mp4", pagename: "Athletics"),
-                 //   atheletcard(title: "High Jump", imagepath: "assets/highjump.jpg", context: context, videopath: "assets/highjump.mp4", pagename: "Athletics"),
-                 //   atheletcard(title: "Shot Put", imagepath: "assets/shotput.jpg", context: context, videopath: "assets/shotput.mp4", pagename: "Athletics"),
-                 //   atheletcard(title: "Javelin Throw", imagepath: "assets/javelin.jpg", context: context, videopath: "assets/javelin.mp4", pagename: "Athletics"),
-
-                  ],
-                ),
+              child: ListView.builder(
+                itemCount: sportsList.length,
+                itemBuilder: (context, index) {
+                  final sport = sportsList[index];
+                  return athleteCard(sport: sport, context: context);
+                },
               ),
             ),
           ],
@@ -176,41 +210,85 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-Widget atheletcard({required String title, required imagepath, required BuildContext context,required String videopath,required pagename}) {
+Widget athleteCard({
+  required Sport sport,
+  required BuildContext context,
+}) {
   return GestureDetector(
     onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>AthleteScreen(sportsname:pagename ,sportsvideourl:videopath ,)));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AthleteScreen(
+            sportsname: sport.name,
+            sportsvideourl: sport.videoUrl,
+            sportssubtitle: sport.subtitle,
+            sportsabout: sport.aboutText,
+
+          ),
+        ),
+      );
     },
     child: Padding(
-      padding: EdgeInsets.all(10.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Material(
-            elevation: 5.w,
-            borderRadius: BorderRadius.circular(12.r),
-            child: Container(
-              height: 150.h,
-              width: double.infinity.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                image: DecorationImage(image: AssetImage(imagepath), fit: BoxFit.cover),
+          // Fixed size image card
+          Container(
+            height: 160.h,
+            width: double.infinity, // Makes the card stretch horizontally
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              gradient: LinearGradient(
+                colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Image.asset(
+                sport.imagepath,
+                fit: BoxFit.cover, // Adjust image to fill card without stretching
               ),
             ),
           ),
+
+          // Title container overlapping the card with colors
           Positioned(
-            left: 70,
-            top: 140,
+            left: 20.w,
+            bottom: -20.h,
             child: Container(
-              width: 200.w,
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.r),
-                color: Color(0xFF39D2C0),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
-              child: Center(
-                child: Text(
-                  title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              child: Text(
+                sport.name,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),

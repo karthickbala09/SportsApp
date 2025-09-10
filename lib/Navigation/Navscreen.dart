@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sihapp/appscreens/Home.dart';
+import 'package:sihapp/appscreens/analysis.dart';
 
+import '../appscreens/leaderboard.dart';
 import '../charts/bmicharts.dart';
 
 class BottomNavPage extends StatefulWidget {
@@ -18,15 +20,17 @@ class _BottomNavPageState extends State<BottomNavPage> {
   final List<Widget> _pages = [
     Home(),
     AthletePerformanceScreen(),
-    Scaffold(),
-    Scaffold(),
+    PerformancePage(),
+    LeaderboardScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: _pages[_currentIndex], // Show selected page
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF39D2C0),
@@ -38,10 +42,10 @@ class _BottomNavPageState extends State<BottomNavPage> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.upcoming), label: "Performance"),
+          BottomNavigationBarItem(icon: Icon(Icons.upcoming), label: "Strength"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+              icon: Icon(Icons.pending_actions), label: "Performance"),
+          BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: "Rank"),
         ],
       ),
     );
